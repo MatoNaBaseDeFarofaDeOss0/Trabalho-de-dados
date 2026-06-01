@@ -1,0 +1,358 @@
+```
+html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronograma ENEM Personalizado</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --accent-green: #10B981;
+            --accent-yellow: #F59E0B;
+            --accent-red: #EF4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        header h1 {
+            margin: 0;
+            color: var(--primary);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Controles de Tempo */
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .time-adjust {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #total-time {
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .intensity-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* Dashboard Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Lista de Metas */
+        .schedule-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: var(--bg);
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .schedule-item.break {
+            border-left-color: var(--accent-yellow);
+            background-color: #FEF3C7;
+        }
+        
+        .schedule-item.review {
+            border-left-color: var(--accent-green);
+        }
+
+        /* Progresso */
+        .progress-bar-bg {
+            background-color: var(--bg);
+            border-radius: 10px;
+            height: 20px;
+            width: 100%;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-bar-fill {
+            background-color: var(--accent-green);
+            height: 100%;
+            width: 65%; /* Fixo para demonstração */
+            transition: width 0.3s ease;
+        }
+
+        /* Lembretes */
+        .reminders {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .reminder-card {
+            background-color: #FEF2F2;
+            color: #991B1B;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Cronograma ENEM</h1>
+            <p>Seu plano de estudos inteligente e adaptável</p>
+        </header>
+
+        <div class="card">
+            <h2>Ajuste Fino de Tempo (Diário)</h2>
+            <div class="controls">
+                <div class="time-adjust">
+                    <button onclick="adjustTime(-15)">- 15 min</button>
+                    <span id="total-time">03:00 h</span>
+                    <button onclick="adjustTime(15)">+ 15 min</button>
+                </div>
+                <div>
+                    Intensidade: <span id="intensity-badge" class="intensity-badge">Moderada</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <div class="card">
+                <h2>Metas Diárias (Hoje)</h2>
+                <ul class="schedule-list" id="schedule-list">
+                    </ul>
+            </div>
+
+            <div class="column-right">
+                <div class="card" style="margin-bottom: 20px;">
+                    <h2>Progresso Semanal</h2>
+                    <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Você concluiu 65% das metas da semana.</p>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Lembretes de Estudo</h2>
+                    <div class="reminders">
+                        <div class="reminder-card">
+                            <strong>⚠️ Urgente:</strong> Entregar redação (Tema: Meio Ambiente) até amanhã.
+                        </div>
+                        <div class="reminder-card" style="background-color: #EFF6FF; color: #1E40AF;">
+                            <strong>🔄 Revisão:</strong> Fórmulas de Física (Termologia) no fim de semana.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Estado inicial: 180 minutos (3 horas)
+        let totalMinutes = 180;
+
+        // Matérias do ENEM
+        const subjects = [
+            "Matemática e suas Tecnologias",
+            "Linguagens e Códigos",
+            "Ciências da Natureza",
+            "Ciências Humanas",
+            "Redação"
+        ];
+
+        // Função para formatar minutos em HH:MM
+        function formatTime(minutes) {
+            const h = Math.floor(minutes / 60);
+            const m = minutes % 60;
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')} h`;
+        }
+
+        // Função para ajustar o tempo
+        function adjustTime(amount) {
+            // Limites: mínimo 1h (60 min), máximo 10h (600 min)
+            if (totalMinutes + amount >= 60 && totalMinutes + amount <= 600) {
+                totalMinutes += amount;
+                updateUI();
+            }
+        }
+
+        // Atualiza toda a interface com base no tempo
+        function updateUI() {
+            // Atualizar texto do tempo
+            document.getElementById('total-time').innerText = formatTime(totalMinutes);
+
+            // Determinar Intensidade e Parâmetros
+            let intensityStr = "";
+            let badgeColor = "";
+            let breakTime = 0;
+            let reviewTime = 0;
+            let studyBlocks = 2; // Quantas matérias por dia
+
+            if (totalMinutes < 180) { // Menos de 3 horas
+                intensityStr = "Leve";
+                badgeColor = "var(--accent-green)";
+                breakTime = 10;
+                reviewTime = 15;
+                studyBlocks = 1;
+            } else if (totalMinutes <= 300) { // Entre 3 e 5 horas
+                intensityStr = "Moderada";
+                badgeColor = "var(--accent-yellow)";
+                breakTime = 15;
+                reviewTime = 20;
+                studyBlocks = 2;
+            } else { // Mais de 5 horas
+                intensityStr = "Intensa";
+                badgeColor = "var(--accent-red)";
+                breakTime = 20;
+                reviewTime = 30;
+                studyBlocks = 3;
+            }
+
+            // Atualizar Badge de Intensidade
+            const badge = document.getElementById('intensity-badge');
+            badge.innerText = intensityStr;
+            badge.style.backgroundColor = badgeColor;
+
+            // Calcular tempo líquido de estudo
+            // Tempo total = (Blocos de Estudo * Tempo por Bloco) + Revisão + (Intervalos)
+            const totalBreaksTime = breakTime * (studyBlocks > 1 ? studyBlocks - 1 : 1);
+            const liquidStudyTime = totalMinutes - reviewTime - totalBreaksTime;
+            const timePerSubject = Math.floor(liquidStudyTime / studyBlocks);
+
+            // Renderizar Cronograma do Dia
+            renderSchedule(studyBlocks, timePerSubject, breakTime, reviewTime);
+        }
+
+        // Gera a lista HTML das metas diárias
+        function renderSchedule(blocks, timePerSubject, breakTime, reviewTime) {
+            const list = document.getElementById('schedule-list');
+            list.innerHTML = ""; // Limpar lista atual
+
+            // Sorteia matérias aleatórias apenas para demonstração visual
+            let shuffledSubjects = [...subjects].sort(() => 0.5 - Math.random());
+
+            for (let i = 0; i < blocks; i++) {
+                // Adiciona bloco de estudo
+                list.innerHTML += `
+                    <li class="schedule-item">
+                        <span>📚 ${shuffledSubjects[i]}</span>
+                        <strong>${timePerSubject} min</strong>
+                    </li>
+                `;
+
+                // Adiciona intervalo (exceto no último bloco antes da revisão)
+                if (i < blocks - 1 || blocks === 1) {
+                    list.innerHTML += `
+                        <li class="schedule-item break">
+                            <span>☕ Intervalo Automático</span>
+                            <strong>${breakTime} min</strong>
+                        </li>
+                    `;
+                }
+            }
+
+            // Adiciona bloco de revisão final
+            list.innerHTML += `
+                <li class="schedule-item review">
+                    <span>🔄 Revisão Ativa / Flashcards</span>
+                    <strong>${reviewTime} min</strong>
+                </li>
+            `;
+        }
+
+        // Inicializar a aplicação ao carregar a página
+        updateUI();
+    </script>
+</body>
+</html>
+
+```
