@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronograma ENEM Personalizado</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --accent-green: #10B981;
+            --accent-yellow: #F59E0B;
+            --accent-red: #EF4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        header h1 {
+            margin: 0;
+            color: var(--primary);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Controles de Tempo */
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .time-adjust {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #total-time {
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .intensity-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* Dashboard Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Lista de Metas */
+        .schedule-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--bg);
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary);
+        }
+
+        /* Transforma os blocos de estudo em itens clicáveis interativos */
+        .schedule-item.clickable {
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .schedule-item.clickable:hover {
+            background-color: #E5E7EB;
+            transform: scale(1.01);
+        }
+
+        .schedule-item.break {
+            border-left-color: var(--accent-yellow);
+            background-color: #FEF3C7;
+            cursor: default;
+        }
+        
+        .schedule-item.review {
+            border-left-color: var(--accent-green);
+            cursor: default;
+        }
+
+        /* Progresso */
+        .progress-bar-bg {
+            background-color: var(--bg);
+            border-radius: 10px;
+            height: 20px;
+            width: 100%;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-bar-fill {
+            background-color: var(--accent-green);
+            height: 100%;
+            width: 65%; /* Fixo para demonstração */
+            transition: width 0.3s ease;
+        }
+
+        /* Lembretes */
+        .reminders {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .reminder-card {
+            background-color: #FEF2F2;
+            color: #991B1B;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- ESTILOS DA JANELA FLUTUANTE (MODAL) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .close-modal:hover {
+            color: var(--accent-red);
+            background: none;
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            color: var(--primary);
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 10px;
+        }
+
+        .content-box {
+            background-color: #F9FAFB;
+            border-left: 4px solid var(--accent-yellow);
+            padding: 12px;
+            border-radius: 4px;
+            margin: 15px 0;
+            font-size: 0.95rem;
+        }
+
+        .video-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            background-color: #FF0000; /* Cor do YouTube */
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        .video-btn:hover {
+            background-color: #CC0000;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Cronograma ENEM</h1>
+            <p>Seu plano de estudos inteligente e adaptável</p>
+        </header>
+
+        <div class="card">
+            <h2>Ajuste Fino de Tempo (Diário)</h2>
+            <div class="controls">
+                <div class="time-adjust">
+                    <button onclick="adjustTime(-15)">- 15 min</button>
+                    <span id="total-time">03:00 h</span>
+                    <button onclick="adjustTime(15)">+ 15 min</button>
+                </div>
+                <div>
+                    Intensidade: <span id="intensity-badge" class="intensity-badge">Moderada</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <div class="card">
+                <h2>Metas Diárias (Hoje)</h2>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: -10px; margin-bottom: 15px;">💡 Clique em uma matéria para ver o conteúdo e as videoaulas.</p>
+                <ul class="schedule-list" id="schedule-list">
+                    </ul>
+            </div>
+
+            <div class="column-right">
+                <div class="card" style="margin-bottom: 20px;">
+                    <h2>Progresso Semanal</h2>
+                    <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Você concluiu 65% das metas da semana.</p>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Lembretes de Estudo</h2>
+                    <div class="reminders">
+                        <div class="reminder-card">
+                            <strong>⚠️ Urgente:</strong> Entregar redação (Tema: Meio Ambiente) até amanhã.
+                        </div>
+                        <div class="reminder-card" style="background-color: #EFF6FF; color: #1E40AF;">
+                            <strong>🔄 Revisão:</strong> Fórmulas de Física (Termologia) no fim de semana.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="content-modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="close-modal" onclick="closeModal(null)">&times;</button>
+            <h3 id="modal-title">Matéria</h3>
+            <p id="modal-time-info"><strong>Tempo planejado:</strong> -- min</p>
+            
+            <h4>📌 Curiosidade Prática:</h4>
+            <div class="content-box" id="modal-curiosity">
+                Carregando...
+            </div>
+
+            <h4>🎥 Assistir Aula Completa:</h4>
+            <a href="#" id="modal-video-link" target="_blank" class="video-btn">
+                <span>▶️</span> Ver Aula no YouTube
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Estado inicial: 180 minutos (3 horas)
+        let totalMinutes = 180;
+
+        // Banco de Dados de Conteúdos das Matérias
+        const contentDatabase = {
+            "Matemática e suas Tecnologias": {
+                curiosity: "Você sabia que a 'Regra de Três' resolve mais de 25% da prova de Matemática do ENEM? Domine razão, proporção e porcentagem e você já garante uma base de pontos altíssima através da TRI!",
+                youtube: "https://www.youtube.com/results?search_query=matematica+enem+basica+proporcionalidade"
+            },
+            "Linguagens e Codes (Português)": {
+                curiosity: "No ENEM, a prova de Português avalia muito mais a sua capacidade de interpretação de texto e análise de funções da linguagem do que regras gramaticais puras. Foque em entender o contexto!",
+                youtube: "https://www.youtube.com/results?search_query=interpretacao+de+texto+enem"
+            },
+            "Ciências da Natureza": {
+                curiosity: "Em Biologia, os temas de Ecologia (como cadeias alimentares e impactos ambientais) são os campeões absolutos de questões. Em Física, entender o calor (Termologia) te garante pontos certos.",
+                youtube: "https://www.youtube.com/results?search_query=ecologia+enem+revisao"
+            },
+            "Ciências Humanas": {
+                curiosity: "A prova de Humanas ama relacionar a História com a Filosofia e a Sociologia. Entender conceitos como Cidadania, Direitos Humanos e transformações no trabalho te ajuda em várias matérias ao mesmo tempo.",
+                youtube: "https://www.youtube.com/results?search_query=ciencias+humanas+enem"
+            },
+            "Redação": {
+                curiosity: "A redação do ENEM possui um modelo muito rígido (Dissertativo-Argumentativo). Se você decorar uma estrutura de introdução, desenvolvimento e a proposta de intervenção com os 5 elementos (Agente, Ação, Meio, Efeito e Detalhamento), você já passa dos 800 pontos facilmente!",
+                youtube: "https://www.youtube.com/results?search_query=estrutura+redacao+enem+nota+1000"
+            }
+        };
+
+        // Matérias fixas ordenadas para o dia (evita que fiquem embaralhando ao mexer no tempo)
+        const activeSubjects = [
+            "Matemática e suas Tecnologias",
+            "Linguagens e Codes (Português)",
+            "Redação",
+            "Ciências da Natureza",
+            "Ciências Humanas"
+        ];
+
+        // Função para formatar minutos em HH:MM
+        function formatTime(minutes) {
+            const h = Math.floor(minutes / 60);
+            const m = minutes % 60;
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')} h`;
+        }
+
+        // Função para ajustar o tempo
+        function adjustTime(amount) {
+            if (totalMinutes + amount >= 60 && totalMinutes + amount <= 600) {
+                totalMinutes += amount;
+                updateUI();
+            }
+        }
+
+        // Atualiza toda a interface com base no tempo
+        function updateUI() {
+            document.getElementById('total-time').innerText = formatTime(totalMinutes);
+
+            let intensityStr = "";
+            let badgeColor = "";
+            let breakTime = 0;
+            let reviewTime = 0;
+            let studyBlocks = 2;
+
+            if (totalMinutes < 180) { 
+                intensityStr = "Leve";
+                badgeColor = "var(--accent-green)";
+                breakTime = 10;
+                reviewTime = 15;
+                studyBlocks = 1;
+            } else if (totalMinutes <= 300) { 
+                intensityStr = "Moderada";
+                badgeColor = "var(--accent-yellow)";
+                breakTime = 15;
+                reviewTime = 20;
+                studyBlocks = 2;
+            } else { 
+                intensityStr = "Intensa";
+                badgeColor = "var(--accent-red)";
+                breakTime = 20;
+                reviewTime = 30;
+                studyBlocks = 3;
+            }
+
+            const badge = document.getElementById('intensity-badge');
+            badge.innerText = intensityStr;
+            badge.style.backgroundColor = badgeColor;
+
+            const totalBreaksTime = breakTime * (studyBlocks > 1 ? studyBlocks - 1 : 1);
+            const liquidStudyTime = totalMinutes - reviewTime - totalBreaksTime;
+            const timePerSubject = Math.floor(liquidStudyTime / studyBlocks);
+
+            renderSchedule(studyBlocks, timePerSubject, breakTime, reviewTime);
+        }
+
+        // Gera a lista HTML das metas diárias
+        function renderSchedule(blocks, timePerSubject, breakTime, reviewTime) {
+            const list = document.getElementById('schedule-list');
+            list.innerHTML = ""; 
+
+            for (let i = 0; i < blocks; i++) {
+                let currentSubject = activeSubjects[i];
+
+                // Bloco de estudo configurado para aceitar cliques via JavaScript
+                list.innerHTML += `
+                    <li class="schedule-item clickable" onclick="openModal('${currentSubject}', ${timePerSubject})">
+                        <span>📚 ${currentSubject}</span>
+                        <strong>${timePerSubject} min</strong>
+                    </li>
+                `;
+
+                if (i < blocks - 1) {
+                    list.innerHTML += `
+                        <li class="schedule-item break">
+                            <span>☕ Intervalo Automático</span>
+                            <strong>${breakTime} min</strong>
+                        </li>
+                    `;
+                }
+            }
+
+            list.innerHTML += `
+                <li class="schedule-item review">
+                    <span>🔄 Revisão Ativa / Flashcards</span>
+                    <strong>${reviewTime} min</strong>
+                </li>
+            `;
+        }
+
+        // Funções para controlar a Janela Flutuante (Modal)
+        function openModal(subjectName, minutes) {
+            const modal = document.getElementById('content-modal');
+            const data = contentDatabase[subjectName] || { curiosity: "Foque nos exercícios!", youtube: "https://youtube.com" };
+
+            document.getElementById('modal-title').innerText = subjectName;
+            document.getElementById('modal-time-info').innerHTML = `⏱️ <strong>Tempo recomendado para hoje:</strong> ${minutes} minutos.`;
+            document.getElementById('modal-curiosity').innerText = data.curiosity;
+            document.getElementById('modal-video-link').href = data.youtube;
+
+            modal.style.display = "flex";
+        }
+
+        function closeModal(event) {
+            // Se o evento vier do clique de fora ou do botão de fechar, ele fecha
+            document.getElementById('content-modal').style.display = "none";
+        }
+
+        // Inicializar a aplicação ao carregar a página
+        updateUI();
+    </script>
+</body>
+</html>
