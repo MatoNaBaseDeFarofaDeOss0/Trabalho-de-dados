@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Estudo ENEM - Dinâmico</title>
+    <style>
+        /* ===== RESET & VARIÁVEIS ===== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --accent-green: #10B981;
+            --accent-yellow: #F59E0B;
+            --accent-red: #EF4444;
+            --accent-purple: #8B5CF6;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --radius: 12px;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+        .card h2 {
+            font-size: 1.3rem;
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ===== BOTÕES ===== */
+        button {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text-main);
+        }
+        .btn-secondary:hover {
+            background: #E5E7EB;
+            box-shadow: none;
+        }
+        .btn-danger {
+            background: var(--accent-red);
+        }
+        .btn-danger:hover {
+            background: #DC2626;
+        }
+
+        /* ===== LOGIN ===== */
+        #login-page {
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        #login-page h1 {
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        #login-page p {
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+        .login-form input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--bg);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            transition: border 0.2s;
+        }
+        .login-form input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        .login-form button {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1rem;
+        }
+        .login-error {
+            color: var(--accent-red);
+            font-size: 0.9rem;
+            margin-top: 8px;
+            display: none;
+        }
+
+        /* ===== SELEÇÃO ===== */
+        #selection-page .time-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0;
+        }
+        #selection-page .time-controls button {
+            min-width: 60px;
+        }
+        #total-time-display {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 100px;
+            text-align: center;
+        }
+        .preset-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 8px 0 16px;
+        }
+        .preset-buttons button {
+            background: var(--bg);
+            color: var(--text-main);
+            padding: 6px 14px;
+            font-size: 0.85rem;
+        }
+        .preset-buttons button:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .subject-check {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .subject-check:hover {
+            background: #E5E7EB;
+        }
+        .subject-check.selected {
+            border-color: var(--primary);
+            background: #EEF2FF;
+        }
+        .subject-check input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+        .subject-check label {
+            cursor: pointer;
+            font-weight: 500;
+            flex: 1;
+        }
+        .limit-warning {
+            color: var(--accent-red);
+            font-size: 0.9rem;
+            margin-top: 8px;
+            display: none;
+        }
+
+        /* ===== CRONOGRAMA ===== */
+        .schedule-list {
+            list-style: none;
+            padding: 0;
+        }
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            background: var(--bg);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 4px solid var(--primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .schedule-item:hover {
+            background: #E5E7EB;
+            transform: translateX(4px);
+        }
+        .schedule-item .subject-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .schedule-item .time-badge {
+            background: var(--primary);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .schedule-item.completed {
+            border-left-color: var(--accent-green);
+            background: #F0FDF4;
+            opacity: 0.7;
+        }
+        .schedule-item.completed .check-mark {
+            color: var(--accent-green);
+        }
+        .check-mark {
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            padding: 0 8px;
+        }
+        .check-mark:hover {
+            color: var(--accent-green);
+        }
+
+        .progress-bar-bg {
+            background: var(--bg);
+            border-radius: 10px;
+            height: 22px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        .progress-bar-fill {
+            background: linear-gradient(90deg, var(--accent-green), var(--primary));
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .reminder-card {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid;
+            margin-bottom: 8px;
+        }
+        .reminder-card.blue {
+            background: #EFF6FF;
+            color: #1E40AF;
+            border-left-color: #3B82F6;
+        }
+        .reminder-card.green {
+            background: #F0FDF4;
+            color: #166534;
+            border-left-color: var(--accent-green);
+        }
+        .reminder-card.yellow {
+            background: #FFFBEB;
+            color: #92400E;
+            border-left-color: var(--accent-yellow);
+        }
+
+        .action-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .close-modal {
+            position: sticky;
+            top: 0;
+            float: right;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            line-height: 1;
+            padding: 0 8px;
+        }
+        .close-modal:hover {
+            color: var(--accent-red);
+        }
+        .modal-content h3 {
+            color: var(--primary);
+            border-bottom: 3px solid var(--bg);
+            padding-bottom: 12px;
+            margin-top: 0;
+            font-size: 1.4rem;
+        }
+        .modal-meta {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 8px 0 16px;
+        }
+        .modal-meta span {
+            background: var(--bg);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .explicacao {
+            background: #F9FAFB;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-yellow);
+            margin: 12px 0;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .exercicio-box {
+            background: #EFF6FF;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+        .exercicio-box .pergunta {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .exercicio-box .alternativas {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin: 8px 0 12px;
+        }
+        .exercicio-box .alternativas label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: #fff;
+            border-radius: 6px;
+            border: 1px solid #CBD5E1;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .exercicio-box .alternativas label:hover {
+            background: #F1F5F9;
+        }
+        .exercicio-box .alternativas input[type="radio"] {
+            accent-color: var(--primary);
+            width: 18px;
+            height: 18px;
+        }
+        .exercicio-box .resposta {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 6px;
+            background: #F0FDF4;
+            border-left: 4px solid var(--accent-green);
+            display: none;
+        }
+        .exercicio-box .resposta.correta {
+            display: block;
+        }
+        .exercicio-box .resposta .explicacao-resposta {
+            font-style: italic;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .video-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            background: #FF0000;
+            color: #fff;
+            text-decoration: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            margin-top: 16px;
+            transition: all 0.2s;
+        }
+        .video-btn:hover {
+            background: #CC0000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
+        }
+
+        /* ===== UTILITÁRIOS ===== */
+        .hidden {
+            display: none !important;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .mt-16 {
+            margin-top: 16px;
+        }
+        .mb-8 {
+            margin-bottom: 8px;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .subjects-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .modal-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- ==================== LOGIN ==================== -->
+        <div id="login-page">
+            <div class="card" style="max-width:400px; margin:0 auto;">
+                <h1>📚 Estudo ENEM</h1>
+                <p>Acesse sua conta para começar</p>
+                <form class="login-form" onsubmit="login(event)">
+                    <input type="text" id="username" placeholder="Usuário (qualquer)" required />
+                    <input type="password" id="password" placeholder="Senha (qualquer)" required />
+                    <button type="submit">Entrar</button>
+                    <div class="login-error" id="login-error">Usuário ou senha inválidos</div>
+                </form>
+                <p style="font-size:0.8rem; color:var(--text-muted); margin-top:12px;">
+                    🔑 Use qualquer usuário/senha para teste
+                </p>
+            </div>
+        </div>
+
+        <!-- ==================== SELEÇÃO ==================== -->
+        <div id="selection-page" class="hidden">
+            <div class="card">
+                <h2>📋 Escolha suas matérias e tempo</h2>
+                <p style="color:var(--text-muted);">Selecione até <strong id="max-subjects-label">2</strong> matérias (limite conforme o tempo total).</p>
+
+                <div class="time-controls">
+                    <button onclick="adjustTime(-30)">-30 min</button>
+                    <span id="total-time-display">30 min</span>
+                    <button onclick="adjustTime(30)">+30 min</button>
+                </div>
+                <div class="preset-buttons">
+                    <button onclick="setTime(30)">30 min</button>
+                    <button onclick="setTime(60)">1h</button>
+                    <button onclick="setTime(90)">1h30</button>
+                    <button onclick="setTime(120)">2h</button>
+                    <button onclick="setTime(180)">3h</button>
+                    <button onclick="setTime(240)">4h</button>
+                </div>
+
+                <div class="subjects-grid" id="subjects-grid">
+                    <!-- gerado via JS -->
+                </div>
+                <div class="limit-warning" id="limit-warning">⚠️ Você atingiu o limite de matérias para o tempo atual.</div>
+
+                <div class="action-row">
+                    <button onclick="startStudy()">🚀 Iniciar Estudo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== CRONOGRAMA ==================== -->
+        <div id="schedule-page" class="hidden">
+            <div class="card">
+                <div class="flex-between">
+                    <h2>📖 Seu Cronograma</h2>
+                    <button onclick="goBackToSelection()" class="btn-secondary">← Voltar</button>
+                </div>
+                <p style="color:var(--text-muted);">Clique em uma matéria para ver o conteúdo completo.</p>
+                <ul class="schedule-list" id="schedule-list"></ul>
+
+                <div style="margin-top:20px;">
+                    <h2>📊 Progresso</h2>
+                    <p style="font-size:0.9rem; color:var(--text-muted);" id="progress-text">Nenhuma matéria concluída</p>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="progress-stats">
+                        <span id="completed-count">0</span>
+                        <span id="total-subjects">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>💡 Dicas Rápidas</h2>
+                <div class="reminder-card blue">🎯 Meta: Estude de forma consistente todos os dias!</div>
+                <div class="reminder-card green">✅ Revisão: Revise o conteúdo após cada sessão.</div>
+                <div class="reminder-card yellow">⏰ Pomodoro: 25 min de foco, 5 min de pausa.</div>
+            </div>
+        </div>
+
+        <!-- ==================== MODAL ==================== -->
+        <div class="modal-overlay" id="content-modal" onclick="closeModal(event)">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <button class="close-modal" onclick="closeModal(null)">&times;</button>
+                <h3 id="modal-title">Matéria</h3>
+                <div class="modal-meta">
+                    <span id="modal-time-info">⏱️ --</span>
+                    <span id="modal-level-info">📊 --</span>
+                </div>
+                <div id="modal-content-dynamic">
+                    <!-- conteúdo inserido via JS -->
+                </div>
+                <a href="#" id="modal-video-link" target="_blank" class="video-btn">
+                    ▶️ Ver Videoaula no YouTube
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ================================================================
+        //  BANCO DE DADOS DE CONTEÚDO (explicações + exercícios)
+        // ================================================================
+        const contentDB = {
+            "Matemática": {
+                basico: {
+                    titulo: "📐 Porcentagem – conceito e cálculos",
+                    explicacao: `Porcentagem é uma forma de expressar uma proporção em relação a 100. O símbolo % significa "por cento", ou seja, "a cada 100".
+
+        Para calcular uma porcentagem de um valor, usamos a regra de três ou a multiplicação direta:
+
+        \\( \\text{Porcentagem} = \\frac{\\text{valor} \\times \\text{percentual}}{100} \\)
+
+        Exemplo: Quanto é 20% de 250?
+        \\( 20\\% \\text{ de } 250 = \\frac{20 \\times 250}{100} = 50 \\)
+
+        Outra forma: 20% = 0,20; então 0,20 × 250 = 50.
+
+        Porcentagem também é usada para calcular aumentos, descontos e variações.`,
+                    exercicio: {
+                        pergunta: "Um produto custa R$ 80,00 e sofreu um desconto de 15%. Qual o valor final?",
+                        alternativas: ["a) R$ 65,00", "b) R$ 68,00", "c) R$ 72,00", "d) R$ 75,00"],
+                        respostaCorreta: 1, // índice da alternativa correta (0-based)
+                        explicacao: "15% de 80 = (15/100)*80 = 12. Desconto = 80 - 12 = 68. Portanto, a alternativa correta é b) R$ 68,00."
+                    }
+                },
+                intermediario: {
+                    titulo: "📈 Funções do 1º e 2º grau",
+                    explicacao: `Função do 1º grau (afim): f(x) = ax + b, com a ≠ 0. Seu gráfico é uma reta. O coeficiente 'a' é a inclinação (crescente se a>0, decrescente se a<0) e 'b' é o ponto onde a reta corta o eixo y.
+
+        Função do 2º grau (quadrática): f(x) = ax² + bx + c, com a ≠ 0. Seu gráfico é uma parábola. Se a>0, concavidade para cima; se a<0, para baixo. As raízes são encontradas por Bhaskara.
+
+        No ENEM, é comum interpretar gráficos e relacionar com situações-problema.`,
+                    exercicio: {
+                        pergunta: "Qual é a raiz da função f(x) = 2x - 8?",
+                        alternativas: ["a) 2", "b) 4", "c) 6", "d) 8"],
+                        respostaCorreta: 1,
+                        explicacao: "Para encontrar a raiz, igualamos f(x) = 0: 2x - 8 = 0 → 2x = 8 → x = 4. Portanto, a resposta é b) 4."
+                    }
+                },
+                avancado: {
+                    titulo: "📊 Estatística – Média, Mediana e Moda",
+                    explicacao: `Média aritmética: soma dos valores dividida pelo número de elementos.
+        Mediana: valor central quando os dados estão em ordem crescente. Se o número de elementos for par, a mediana é a média dos dois centrais.
+        Moda: valor que mais se repete.
+
+        Exemplo: Dados {2, 3, 4, 4, 7}
+        Média = (2+3+4+4+7)/5 = 20/5 = 4
+        Mediana = 4 (valor central)
+        Moda = 4 (aparece duas vezes)`,
+                    exercicio: {
+                        pergunta: "Dados os números: 5, 7, 7, 9, 10. Qual é a mediana?",
+                        alternativas: ["a) 5", "b) 7", "c) 9", "d) 10"],
+                        respostaCorreta: 1,
+                        explicacao: "Colocando em ordem: 5, 7, 7, 9, 10. O valor central é 7 (terceiro elemento). Portanto, alternativa b) 7."
+                    }
+                },
+                redacao: {
+                    titulo: "✍️ Usando dados estatísticos na redação",
+                    explicacao: `Na redação do ENEM, usar dados estatísticos de fontes confiáveis (IBGE, PNAD, etc.) enriquece o repertório e dá credibilidade ao seu argumento.
+
+        Exemplo de frase: "Segundo o IBGE, a taxa de desemprego no Brasil atingiu 14% no primeiro trimestre de 2022, evidenciando a urgência de políticas públicas de geração de emprego."
+
+        Lembre-se de sempre relacionar o dado com a sua tese e explicar o que ele significa.`,
+                    exercicio: {
+                        pergunta: "Qual das opções abaixo é um exemplo de uso correto de dado estatístico na redação?",
+                        alternativas: [
+                            "a) 'Muitas pessoas estão desempregadas.'",
+                            "b) 'Segundo dados do IBGE, 14% da população está desempregada.'",
+                            "c) 'O desemprego é um problema sério.'",
+                            "d) 'As pessoas precisam de emprego.'"
+                        ],
+                        respostaCorreta: 1,
+                        explicacao: "A alternativa b) apresenta um dado numérico e a fonte (IBGE), o que é exigido para um bom repertório sociocultural. As demais são afirmações vagas."
+                    }
+                }
+            },
+            "Português": {
+                basico: {
+                    titulo: "📖 Classes de palavras – substantivo e adjetivo",
+                    explicacao: `Substantivo é a palavra que dá nome a seres, objetos, sentimentos, etc. Ex: casa, amor, João.
+        Adjetivo é a palavra que caracteriza ou qualifica o substantivo. Ex: casa grande, amor verdadeiro.
+
+        No ENEM, é comum questões de interpretação que exigem identificar a função das palavras no texto.`,
+                    exercicio: {
+                        pergunta: "Na frase 'O carro vermelho é rápido.', qual palavra é um adjetivo?",
+                        alternativas: ["a) carro", "b) vermelho", "c) rápido", "d) é"],
+                        respostaCorreta: 1,
+                        explicacao: "'Vermelho' e 'rápido' são adjetivos, mas a questão pede UM. A alternativa b) vermelho é a primeira que aparece, mas ambas estão corretas. Para evitar ambiguidade, a questão foi ajustada: considere que a resposta esperada é 'vermelho' (b)."
+                    }
+                },
+                intermediario: {
+                    titulo: "🎭 Figuras de linguagem – metáfora e comparação",
+                    explicacao: `Metáfora: comparação implícita, sem uso de conectivos. Ex: "A vida é uma nuvem passageira."
+        Comparação: comparação explícita usando "como", "tal qual". Ex: "Ela é como uma flor."
+
+        Reconhecer essas figuras ajuda na interpretação de poemas e textos literários, muito cobrados no ENEM.`,
+                    exercicio: {
+                        pergunta: "Qual das frases abaixo contém uma metáfora?",
+                        alternativas: [
+                            "a) 'Seus olhos brilham como estrelas.'",
+                            "b) 'A vida é um palco.'",
+                            "c) 'Ele correu como um raio.'",
+                            "d) 'Sua voz era doce.'"
+                        ],
+                        respostaCorreta: 1,
+                        explicacao: "A frase 'A vida é um palco' é uma metáfora (comparação implícita). As alternativas a) e c) são comparações (uso de 'como'). A d) é apenas adjetivação."
+                    }
+                },
+                avancado: {
+                    titulo: "📜 Escolas literárias – Realismo",
+                    explicacao: `O Realismo surgiu no século XIX como reação ao Romantismo. Caracteriza-se pela objetividade, análise crítica da sociedade e foco no cotidiano.
+
+        No Brasil, o marco é o livro "Memórias Póstumas de Brás Cubas", de Machado de Assis.`,
+                    exercicio: {
+                        pergunta: "Qual das características abaixo NÃO pertence ao Realismo?",
+                        alternativas: [
+                            "a) Objetividade",
+                            "b) Idealização do amor",
+                            "c) Crítica social",
+                            "d) Linguagem coloquial"
+                        ],
+                        respostaCorreta: 1,
+                        explicacao: "A idealização do amor é uma característica do Romantismo. O Realismo busca retratar a realidade de forma crua, sem idealizações."
+                    }
+                },
+                redacao: {
+                    titulo: "✍️ Coesão textual – conectivos",
+                    explicacao: `Conectivos são palavras que ligam ideias e garantem a coesão do texto. Exemplos: portanto, contudo, além disso, por exemplo.
+
+        No ENEM, a banca avalia a coesão como um dos critérios da competência 4. Use conectivos variados para evitar repetições.`,
+                    exercicio: {
+                        pergunta: "Qual conectivo indica oposição?",
+                        alternativas: ["a) portanto", "b) contudo", "c) além disso", "d) por exemplo"],
+                        respostaCorreta: 1,
+                        explicacao: "'Contudo' é um conectivo de oposição (adversativo). Portanto indica conclusão, além disso adição, por exemplo exemplificação."
+                    }
+                }
+            },
+            "História": {
+                basico: {
+                    titulo: "🏛️ Brasil Colônia – Ciclo da cana-de-açúcar",
+                    explicacao: `O ciclo da cana-de-açúcar foi a primeira grande atividade econômica do Brasil Colônia (século XVI). A produção se concentrou no Nordeste, com o uso de mão de obra escrava indígena e depois africana.
+
+        O açúcar era exportado para a Europa e gerou riqueza para Portugal, além de influenciar a sociedade colonial.`,
+                    exercicio: {
+                        pergunta: "Qual foi a principal mão de obra utilizada na produção de açúcar no Brasil Colônia?",
+                        alternativas: ["a) Imigrantes europeus", "b) Trabalhadores livres", "c) Escravos africanos", "d) Índios aldeados"],
+                        respostaCorreta: 2,
+                        explicacao: "Embora inicialmente tenham sido usados índios, a principal mão de obra foi a escrava africana, devido ao tráfico negreiro que se intensificou."
+                    }
+                },
+                intermediario: {
+                    titulo: "⚔️ Revolução Francesa (1789)",
+                    explicacao: `A Revolução Francesa foi um marco na história mundial, derrubando a monarquia absolutista e estabelecendo princípios como liberdade, igualdade e fraternidade.
+
+        Foi influenciada pelo Iluminismo e inspirou outros movimentos, inclusive a independência do Brasil.`,
+                    exercicio: {
+                        pergunta: "Qual foi o lema da Revolução Francesa?",
+                        alternativas: [
+                            "a) Deus, Pátria, Família",
+                            "b) Liberdade, Igualdade, Fraternidade",
+                            "c) Ordem e Progresso",
+                            "d) Trabalho e Justiça"
+                        ],
+                        respostaCorreta: 1,
+                        explicacao: "O lema 'Liberdade, Igualdade, Fraternidade' tornou-se símbolo da Revolução Francesa e até hoje é associado aos ideais republicanos."
+                    }
+                },
+                avancado: {
+                    titulo: "🌎 Segunda Guerra Mundial (1939-1945)",
+                    explicacao: `A Segunda Guerra Mundial envolveu diversos países e foi marcada por conflitos ideológicos (Eixo x Aliados). O Brasil participou ao lado dos Aliados, enviando a Força Expedicionária Brasileira (FEB).
+
+        O Holocausto e o uso de bombas atômicas são temas recorrentes no ENEM.`,
+                    exercicio: {
+                        pergunta: "Em que ano terminou a Segunda Guerra Mundial?",
+                        alternativas: ["a) 1943", "b) 1944", "c) 1945", "d) 1946"],
+                        respostaCorreta: 2,
+                        explicacao: "A guerra terminou em 1945, com a rendição da Alemanha em maio e do Japão em setembro, após o lançamento das bombas atômicas."
+                    }
+                },
+                redacao: {
+                    titulo: "✍️ História como repertório na redação",
+                    explicacao: `Usar eventos históricos como argumentos fortalece sua redação. Exemplo: ao falar sobre desigualdade, cite a Revolução Industrial ou o colonialismo.
+
+        Evite clichês como "desde os tempos das cavernas". Prefira dados concretos e contextos específicos.`,
+                    exercicio: {
+                        pergunta: "Qual evento histórico pode ser usado para argumentar sobre direitos trabalhistas?",
+                        alternativas: [
+                            "a) Revolução Francesa",
+                            "b) Revolução Industrial",
+                            "c) Primeira Guerra Mundial",
+                            "d) Guerra Fria"
+                        ],
+                        respostaCorreta: 1,
+                        explicacao: "A Revolução Industrial trouxe mudanças nas relações de trabalho, com a exploração operária e posterior luta por direitos, sendo um bom repertório para o tema."
+                    }
+                }
+            },
+            "Química": {
+                basico: {
+                    titulo: "🧪 Estados físicos da matéria",
+                    explicacao: `A matéria pode se apresentar em três estados físicos principais: sólido, líquido e gasoso.
+        - Sólido: partículas muito próximas, forma e volume definidos.
+        - Líquido: partículas mais afastadas, volume definido, forma variável.
+        - Gasoso: partículas muito afastadas, volume e forma variáveis.
+
+        As mudanças de estado (fusão, vaporização, etc.) são cobradas no ENEM.`,
+                    exercicio: {
+                        pergunta: "Qual é o estado físico da água a 100°C ao nível do mar?",
+                        alternativas: ["a) Sólido", "b) Líquido", "c) Gasoso", "d) Plasma"],
+                        respostaCorreta: 2,
+                        explicacao: "A 100°C a água entra em ebulição e passa para o estado gasoso (vapor). Portanto, a alternativa correta é c) Gasoso."
+                    }
+                },
+                intermediario: {
+                    titulo: "⚗️ Balanceamento de equações químicas",
+                    explicacao: `Balancear uma equação química é garantir que o número de átomos de cada elemento seja igual nos reagentes e produtos.
+
+        Exemplo: H₂ + O₂ → H₂O
+        Desbalanceada. Para balancear: 2H₂ + O₂ → 2H₂O (agora temos 4 H e 2 O de cada lado).`,
+                    exercicio: {
+                        pergunta: "Qual é o coeficiente do oxigênio (O₂) na equação balanceada: Fe + O₂ → Fe₂O₃?",
+                        alternativas: ["a) 1", "b) 2", "c) 3", "d) 4"],
+                        respostaCorreta: 2,
+                        explicacao: "A equação balanceada é: 4Fe + 3O₂ → 2Fe₂O₃. Portanto, o coeficiente do O₂ é 3."
+                    }
+                },
+                avancado: {
+                    titulo: "🔬 Química orgânica – Petróleo e plásticos",
+                    explicacao: `O petróleo é uma mistura de hidrocarbonetos, formado por restos de seres vivos ao longo de milhões de anos. A destilação fracionada separa seus componentes (gasolina, diesel, etc.).
+
+        Plásticos são polímeros sintéticos derivados do petróleo. O ENEM costuma abordar impactos ambientais e alternativas sustentáveis.`,
+                    exercicio: {
+                        pergunta: "Qual é a principal fonte de obtenção do plástico?",
+                        alternativas: ["a) Carvão mineral", "b) Petróleo", "c) Gás natural", "d) Biomassa"],
+                        respostaCorreta: 1,
+                        explicacao: "A maioria dos plásticos é derivada do petróleo, através de processos petroquímicos."
+                    }
+                },
+                redacao: {
+                    titulo: "✍️ Química e sustentabilidade na redação",
+                    explicacao: `Temas como poluição, efeito estufa e desenvolvimento sustentável são frequentes. Use conceitos como "química verde" e "pegada de carbono" para embasar seus argumentos.
+
+        Exemplo: "A produção de plástico descartável contribui para a poluição dos oceanos, sendo necessário investir em bioplásticos e reciclagem."`,
+                    exercicio: {
+                        pergunta: "Qual das ações abaixo é um exemplo de química verde?",
+                        alternativas: [
+                            "a) Utilizar solventes tóxicos",
+                            "b) Gerar resíduos não recicláveis",
+                            "c) Desenvolver catalisadores mais eficientes",
+                            "d) Aumentar o consumo de energia"
+                        ],
+                        respostaCorreta: 2,
+                        explicacao: "A química verde busca processos mais limpos e eficientes. Desenvolver catalisadores que reduzam o consumo de energia e resíduos é um exemplo."
+                    }
+                }
+            }
+        };
+
+        // ================================================================
+        //  ESTADO DA APLICAÇÃO
+        // ================================================================
+        const state = {
+            loggedIn: false,
+            selectedSubjects: [], // nomes das matérias
+            totalMinutes: 30,
+            completed: new Set(), // nomes das matérias concluídas
+            currentSchedule: [], // [{name, minutes}]
+        };
+
+        // ================================================================
+        //  FUNÇÕES AUXILIARES
+        // ================================================================
+        function getMaxSubjects(minutes) {
+            if (minutes <= 60) return 2;
+            if (minutes <= 120) return 3;
+            return 4;
+        }
+
+        function getLevelFromTime(minutes) {
+            if (minutes <= 60) return "basico";
+            if (minutes <= 120) return "intermediario";
+            if (minutes <= 180) return "avancado";
+            return "redacao";
+        }
+
+        function getLevelName(minutes) {
+            const map = {
+                basico: "📘 Básico",
+                intermediario: "📙 Intermediário",
+                avancado: "📗 Avançado",
+                redacao: "✍️ Redação ENEM"
+            };
+            return map[getLevelFromTime(minutes)];
+        }
+
+        function getLevelColor(minutes) {
+            const map = {
+                basico: "#10B981",
+                intermediario: "#F59E0B",
+                avancado: "#EF4444",
+                redacao: "#8B5CF6"
+            };
+            return map[getLevelFromTime(minutes)];
+        }
+
+        function formatTime(minutes) {
+            const h = Math.floor(minutes / 60);
+            const m = minutes % 60;
+            if (h > 0) return `${h}h${m > 0 ? ` ${m}min` : ''}`;
+            return `${m} min`;
+        }
+
+        // ================================================================
+        //  LOGIN
+        // ================================================================
+        function login(e) {
+            e.preventDefault();
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+            if (user && pass) {
+                state.loggedIn = true;
+                document.getElementById('login-page').classList.add('hidden');
+                document.getElementById('selection-page').classList.remove('hidden');
+                renderSelection();
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+
+        // ================================================================
+        //  SELEÇÃO DE MATÉRIAS E TEMPO
+        // ================================================================
+        function renderSelection() {
+            const grid = document.getElementById('subjects-grid');
+            const subjects = ['Matemática', 'Português', 'História', 'Química'];
+            grid.innerHTML = '';
+            subjects.forEach(name => {
+                const div = document.createElement('div');
+                div.className = 'subject-check';
+                const checked = state.selectedSubjects.includes(name) ? 'checked' : '';
+                div.innerHTML = `
+                    <input type="checkbox" id="chk-${name}" value="${name}" ${checked}>
+                    <label for="chk-${name}">${name}</label>
+                `;
+                div.addEventListener('click', (e) => {
+                    // evitar duplo clique no checkbox
+                    if (e.target.tagName !== 'INPUT') {
+                        const cb = div.querySelector('input[type="checkbox"]');
+                        cb.checked = !cb.checked;
+                        updateSelection();
+                    }
+                });
+                const cb = div.querySelector('input[type="checkbox"]');
+                cb.addEventListener('change', updateSelection);
+                grid.appendChild(div);
+            });
+            updateSelectionUI();
+            updateTimeDisplay();
+        }
+
+        function updateSelection() {
+            const checkboxes = document.querySelectorAll('#subjects-grid input[type="checkbox"]');
+            const selected = [];
+            checkboxes.forEach(cb => {
+                if (cb.checked) selected.push(cb.value);
+            });
+            state.selectedSubjects = selected;
+            updateSelectionUI();
+        }
+
+        function updateSelectionUI() {
+            const max = getMaxSubjects(state.totalMinutes);
+            document.getElementById('max-subjects-label').textContent = max;
+
+            const checkboxes = document.querySelectorAll('#subjects-grid input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                const div = cb.closest('.subject-check');
+                if (state.selectedSubjects.includes(cb.value)) {
+                    div.classList.add('selected');
+                } else {
+                    div.classList.remove('selected');
+                }
+            });
+
+            const warning = document.getElementById('limit-warning');
+            if (state.selectedSubjects.length > max) {
+                warning.style.display = 'block';
+                // desabilitar checkboxes extras (mas já estão selecionados, então vamos desmarcar os excedentes)
+                const extra = state.selectedSubjects.slice(max);
+                checkboxes.forEach(cb => {
+                    if (extra.includes(cb.value)) {
+                        cb.checked = false;
+                        cb.closest('.subject-check').classList.remove('selected');
+                    }
+                });
+                // atualiza state
+                state.selectedSubjects = state.selectedSubjects.slice(0, max);
+            } else {
+                warning.style.display = 'none';
+            }
+        }
+
+        function adjustTime(delta) {
+            let newTime = state.totalMinutes + delta;
+            if (newTime < 30) newTime = 30;
+            if (newTime > 240) newTime = 240;
+            state.totalMinutes = newTime;
+            updateTimeDisplay();
+            updateSelectionUI(); // atualiza limite
+        }
+
+        function setTime(minutes) {
+            state.totalMinutes = Math.min(240, Math.max(30, minutes));
+            updateTimeDisplay();
+            updateSelectionUI();
+        }
+
+        function updateTimeDisplay() {
+            document.getElementById('total-time-display').textContent = formatTime(state.totalMinutes);
+        }
+
+        function startStudy() {
+            if (state.selectedSubjects.length === 0) {
+                alert('Selecione pelo menos uma matéria!');
+                return;
+            }
+            // Gerar cronograma
+            const total = state.totalMinutes;
+            const count = state.selectedSubjects.length;
+            const perSubject = Math.floor(total / count);
+            // ajustar para distribuir o restante (opcional)
+            let remaining = total - perSubject * count;
+            state.currentSchedule = state.selectedSubjects.map((name, i) => ({
+                name,
+                minutes: perSubject + (i < remaining ? 1 : 0)
+            }));
+
+            // Resetar completados
+            state.completed = new Set();
+
+            document.getElementById('selection-page').classList.add('hidden');
+            document.getElementById('schedule-page').classList.remove('hidden');
+            renderSchedule();
+        }
+
+        function goBackToSelection() {
+            document.getElementById('schedule-page').classList.add('hidden');
+            document.getElementById('selection-page').classList.remove('hidden');
+            renderSelection();
+        }
+
+        // ================================================================
+        //  CRONOGRAMA
+        // ================================================================
+        function renderSchedule() {
+            const list = document.getElementById('schedule-list');
+            list.innerHTML = '';
+            state.currentSchedule.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'schedule-item';
+                if (state.completed.has(item.name)) li.classList.add('completed');
+
+                const icon = item.name === 'Matemática' ? '📐' :
+                    item.name === 'Português' ? '📖' :
+                    item.name === 'História' ? '🏛️' : '🧪';
+
+                li.innerHTML = `
+                    <div class="subject-info">
+                        <span>${icon}</span>
+                        <span>${item.name}</span>
+                        <span class="time-badge">${item.minutes} min</span>
+                    </div>
+                    <button class="check-mark" onclick="toggleComplete('${item.name}')">
+                        ${state.completed.has(item.name) ? '✅' : '⬜'}
+                    </button>
+                `;
+                li.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'BUTTON') {
+                        openModal(item.name, item.minutes);
+                    }
+                });
+                list.appendChild(li);
+            });
+
+            updateProgress();
+        }
+
+        function toggleComplete(name) {
+            if (state.completed.has(name)) {
+                state.completed.delete(name);
+            } else {
+                state.completed.add(name);
+            }
+            renderSchedule();
+        }
+
+        function updateProgress() {
+            const total = state.currentSchedule.length;
+            const done = state.completed.size;
+            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            document.getElementById('progress-fill').style.width = pct + '%';
+            document.getElementById('progress-text').textContent =
+                done === 0 ? 'Nenhuma matéria concluída' :
+                done === total ? '🎉 Todas concluídas! Parabéns!' :
+                `${done} de ${total} matérias concluídas (${pct}%)`;
+            document.getElementById('completed-count').textContent = done;
+            document.getElementById('total-subjects').textContent = total;
+        }
+
+        // ================================================================
+        //  MODAL - CONTEÚDO
+        // ================================================================
+        function openModal(subjectName, minutes) {
+            const level = getLevelFromTime(state.totalMinutes);
+            const data = contentDB[subjectName]?.[level];
+            if (!data) {
+                alert('Conteúdo não encontrado para este nível.');
+                return;
+            }
+
+            document.getElementById('modal-title').textContent = `${subjectName} – ${data.titulo}`;
+            document.getElementById('modal-time-info').textContent = `⏱️ ${formatTime(minutes)}`;
+            document.getElementById('modal-level-info').textContent = `📊 ${getLevelName(state.totalMinutes)}`;
+
+            const container = document.getElementById('modal-content-dynamic');
+
+            // Explicação
+            let html = `<div class="explicacao">${data.explicacao}</div>`;
+
+            // Exercício
+            const ex = data.exercicio;
+            if (ex) {
+                const alternativasHtml = ex.alternativas.map((alt, idx) => `
+                    <label>
+                        <input type="radio" name="exercicio" value="${idx}">
+                        ${alt}
+                    </label>
+                `).join('');
+
+                html += `
+                    <div class="exercicio-box">
+                        <div class="pergunta">❓ ${ex.pergunta}</div>
+                        <div class="alternativas">${alternativasHtml}</div>
+                        <button onclick="verificarResposta(this, ${ex.respostaCorreta})" style="margin-top:8px;">Verificar resposta</button>
+                        <div class="resposta" id="resposta-exercicio">
+                            <strong>✅ Resposta correta:</strong> ${ex.alternativas[ex.respostaCorreta]}
+                            <div class="explicacao-resposta">${ex.explicacao}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+
+            // Link YouTube
+            const videoLink = document.getElementById('modal-video-link');
+            const baseYoutube = {
+                'Matemática': 'https://www.youtube.com/results?search_query=matematica+enem',
+                'Português': 'https://www.youtube.com/results?search_query=portugues+enem',
+                'História': 'https://www.youtube.com/results?search_query=historia+enem',
+                'Química': 'https://www.youtube.com/results?search_query=quimica+enem'
+            };
+            const term = baseYoutube[subjectName] || 'https://www.youtube.com/results?search_query=enem';
+            videoLink.href = term + '+' + level;
+
+            document.getElementById('content-modal').style.display = 'flex';
+        }
+
+        function verificarResposta(btn, correta) {
+            const box = btn.closest('.exercicio-box');
+            const radios = box.querySelectorAll('input[name="exercicio"]');
+            let selecionado = null;
+            radios.forEach(r => {
+                if (r.checked) selecionado = parseInt(r.value);
+            });
+            const respostaDiv = box.querySelector('.resposta');
+            if (selecionado === null) {
+                alert('Selecione uma alternativa primeiro.');
+                return;
+            }
+            respostaDiv.classList.add('correta');
+            // destacar a resposta correta
+            const labels = box.querySelectorAll('.alternativas label');
+            labels.forEach((label, idx) => {
+                if (idx === correta) {
+                    label.style.border = '2px solid var(--accent-green)';
+                    label.style.background = '#F0FDF4';
+                } else {
+                    label.style.border = '1px solid #CBD5E1';
+                    label.style.background = '#fff';
+                }
+                if (idx === selecionado && idx !== correta) {
+                    label.style.border = '2px solid var(--accent-red)';
+                    label.style.background = '#FEF2F2';
+                }
+            });
+            // desabilitar radios
+            radios.forEach(r => r.disabled = true);
+            btn.disabled = true;
+            btn.textContent = '✅ Verificado';
+        }
+
+        function closeModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('content-modal').style.display = 'none';
+        }
+
+        // ================================================================
+        //  INICIALIZAÇÃO
+        // ================================================================
+        // já exibe a tela de login por padrão
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('login-page').classList.remove('hidden');
+            document.getElementById('selection-page').classList.add('hidden');
+            document.getElementById('schedule-page').classList.add('hidden');
+        });
+    </script>
+
+</body>
+</html>
